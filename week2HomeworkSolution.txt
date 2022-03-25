@@ -1,0 +1,171 @@
+Sub Runthroughsheets()
+    Dim xSh As Worksheet
+    Application.ScreenUpdating = False
+    For Each xSh In Worksheets
+        xSh.Select
+        Call RunCode
+    Next
+    Application.ScreenUpdating = True
+End Sub
+
+Sub RunCode()
+                
+                
+Dim Ticker As String
+
+Dim stock_volume As Double
+stock_volume = 0
+
+Dim Summary_Table_Row As Double
+Summary_Table_Row = 2
+
+Dim LR As Double
+LR = Cells(Rows.Count, "A").End(xlUp).Row
+
+Dim Yearly_Change As Double
+Yearly_Change = 0
+
+Dim Percentage_Change As Double
+Percentage_Change = 0
+
+Range("K:K").Select
+    Selection.Style = "Percent"
+    
+For i = 2 To LR
+'Capture price if first of year
+Dim stockPriceAlreadyCaptured As Boolean
+
+    If stockPriceAlreadyCaptured = False Then
+         'Set opening price
+         Dim Opening_Price As Double
+         Opening_Price = Cells(i, 3).Value
+
+         'ensures no future prices captured until condition met.
+         stockPriceAlreadyCaptured = True
+    End If
+
+
+    'Check if we are still within the same ticker.
+    If Cells(i + 1, 1).Value <> Cells(i, 1).Value Then
+
+
+     ' Set the ticker name
+      Ticker = Cells(i, 1).Value
+
+      ' Print the ticker name in the Summary Table
+      Range("I" & Summary_Table_Row).Value = Ticker
+
+      ' Add or subtract closing price from first opening price
+      Yearly_Change = Cells(i, 6).Value - Opening_Price
+
+      ' Print the change in stock price in the Summary Table
+      Range("J" & Summary_Table_Row).Value = Yearly_Change
+
+      ' Calculate percent change from opening to closing price
+      Percent_Change = (Yearly_Change / Opening_Price)
+
+      ' Print the percent change in the summary table
+      Range("K" & Summary_Table_Row).Value = Percent_Change
+      
+      
+      ' Add to the stock volume
+      stock_volume = stock_volume + Cells(i, 7).Value
+
+       ' Print the stock volumet to the Summary Table
+      Range("L" & Summary_Table_Row).Value = stock_volume
+      
+       ' Add one to the summary table row
+      Summary_Table_Row = Summary_Table_Row + 1
+      
+      ' Reset the stock volume
+      stock_volume = 0
+
+
+'switch your condition back to capture next price line.
+        stockPriceAlreadyCaptured = False
+
+' If the cell immediately following a row is the same brand...
+    Else
+
+      ' Add to the stock volume
+      stock_volume = stock_volume + Cells(i, 7).Value
+
+      
+
+    End If
+
+If Range("J" & Summary_Table_Row).Value > 0 Then
+
+Range("J" & Summary_Table_Row).Interior.ColorIndex = 4
+
+ElseIf Range("J" & Summary_Table_Row).Value < 0 Then
+
+Range("J" & Summary_Table_Row).Interior.ColorIndex = 3
+
+End If
+
+
+
+Next i
+
+   
+  End Sub
+                
+                
+                
+                       
+            
+
+
+Sub Greatest_valueLoop()
+
+
+Dim Greatest_increase As Double
+    Dim Greatest_decrease As Double
+    Dim Greatest_volume As Double
+
+Dim LR As Long
+LR = Cells(Rows.Count, "K").End(xlUp).Row
+
+Range("Q2:Q3").Select
+    Selection.Style = "Percent"
+
+    ' Establish summmary table variables
+    Greatest_increase = Application.WorksheetFunction.Max(Range("K:K"))
+    Greatest_decrease = Application.WorksheetFunction.Min(Range("K:K"))
+    Greatest_volume = Application.WorksheetFunction.Max(Range("L:L"))
+    
+
+    ' Loop through results
+   For j = 2 To LR
+
+        
+        If Cells(j, 11).Value = Greatest_increase Then
+
+
+            
+            Cells(2, 16).Value = Cells(j, 9).Value
+           Cells(2, 17).Value = Greatest_increase
+
+        
+        ElseIf Cells(j, 11).Value = Greatest_decrease Then
+            
+            
+            Cells(3, 16).Value = Cells(j, 9).Value
+            Cells(3, 17).Value = Greatest_decrease
+            
+
+        
+        ElseIf Cells(j, 12).Value = Greatest_volume Then
+           
+            
+            Cells(4, 16).Value = Cells(j, 9).Value
+            Cells(4, 17).Value = Greatest_volume
+            
+
+        
+        End If
+
+    Next j
+
+End Sub
